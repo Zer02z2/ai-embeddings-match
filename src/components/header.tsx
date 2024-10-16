@@ -1,6 +1,6 @@
 import { LoadingBar } from "./loadingBar/loadingBar"
 
-export const Header = ({ words }: { words: string[] | null }) => {
+export const Header = ({ words }: { words: string[] | null | undefined }) => {
   return (
     <div className="min-h-40">
       <h1 className="text-3xl">Compete your thought efficiency with AI.</h1>

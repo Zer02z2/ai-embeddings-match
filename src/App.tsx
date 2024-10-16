@@ -5,7 +5,7 @@ import { UserArea } from "./components/userArea"
 import { fetchWords } from "./fetch/fetch"
 
 export const App = () => {
-  const [words, setWords] = useState<string[] | null>([])
+  const [words, setWords] = useState<string[] | null>()
   const [banList, setBanList] = useState<string[]>([""])
 
   useEffect(() => {
@@ -24,8 +24,12 @@ export const App = () => {
           <Header words={words} />
         </div>
         <div className="grid flex-1 grid-cols-2 border border-blue-500">
-          <UserArea />
-          <AiArea />
+          {words && (
+            <>
+              <UserArea words={words} />
+              <AiArea />
+            </>
+          )}
         </div>
       </div>
     </div>
