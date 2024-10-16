@@ -21,7 +21,6 @@ export const UserArea = ({ props }: { props: Props }) => {
     setIsFetching(true)
     const fullSentence = `${words[0]} ${value} ${words[1]}`
     const input = fullSentence.split(/[^a-zA-Z]+/).join("\n")
-    console.log(input)
     try {
       const result = await fetchEmbedding(input)
       if (!result) throw new Error()
@@ -29,7 +28,9 @@ export const UserArea = ({ props }: { props: Props }) => {
       console.log(`init: ${initialDist}, final: ${result}, score: ${distScore}`)
       setScore(distScore)
       setIsFetching(false)
-    } catch {}
+    } catch {
+      console.log("fetch embedding score for user failed")
+    }
   }
   return (
     <div>

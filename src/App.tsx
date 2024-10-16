@@ -26,7 +26,9 @@ export const App = () => {
       if (!initialDist) throw new Error()
       console.log(initialDist)
       setDist(initialDist)
-    } catch {}
+    } catch {
+      console.log("fetch words failed")
+    }
   }
 
   return (

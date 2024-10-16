@@ -4,8 +4,7 @@ import { Props } from "./userArea"
 import { fetchEmbedding, fetchSentence } from "../fetch/fetch"
 
 export const AiArea = ({ props }: { props: Props }) => {
-  const { words, initialDist, value, setValue, isFetching, setIsFetching } =
-    props
+  const { words, initialDist, value, setValue, isFetching } = props
 
   const [display, setDisplay] = useState<string>()
   const [score, setScore] = useState<number>()
@@ -25,7 +24,9 @@ export const AiArea = ({ props }: { props: Props }) => {
       if (!result) throw new Error()
       setDisplay(result)
       await getEmbeddingScore(result)
-    } catch {}
+    } catch {
+      console.log("fetch ai sentence failed")
+    }
   }
   const getEmbeddingScore = async (sentence: string) => {
     setSelfFetching(true)
@@ -37,7 +38,9 @@ export const AiArea = ({ props }: { props: Props }) => {
       console.log(`init: ${initialDist}, final: ${result}, score: ${distScore}`)
       setScore(distScore)
       setSelfFetching(false)
-    } catch {}
+    } catch {
+      console.log("fetch embedding score for ai failed")
+    }
   }
   return (
     <div>
