@@ -2,9 +2,17 @@ import { wordsPrompt, Data } from "./prompts"
 
 const url = "https://replicate-api-proxy.glitch.me/create_n_get/"
 
-export const getWords = async (banList: string[]) => {
-  const result = await fetchData(wordsPrompt(banList))
-  return result
+export const fetchWords = async (banList: string[]): Promise<string[]> => {
+  try {
+    const result = await fetchData(wordsPrompt(banList))
+    const wordArr = result.split(/[^a-zA-Z]+/)
+    if (wordArr.length !== 2) {
+      return fetchWords(banList)
+    }
+    return wordArr
+  } catch {
+    return fetchWords(banList)
+  }
 }
 
 export const fetchData = async (data: Data): Promise<string> => {

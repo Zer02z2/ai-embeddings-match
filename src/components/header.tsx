@@ -1,25 +1,6 @@
-import { useEffect, useState } from "react"
 import { LoadingBar } from "./loadingBar/loadingBar"
-import { getWords } from "../fetch/fetch"
 
-export const Header = () => {
-  const [words, setWords] = useState<string[] | null>()
-  const [banList, setBanList] = useState<string[]>([""])
-
-  useEffect(() => {
-    getRandomWords()
-  }, [])
-
-  const getRandomWords = async () => {
-    const result = await getWords(banList)
-    const wordArr = result.split(/[^a-zA-Z]+/)
-    if (wordArr.length == 2) {
-      setWords(wordArr)
-      setBanList([...banList, ...wordArr])
-    } else {
-      getRandomWords()
-    }
-  }
+export const Header = ({ words }: { words: string[] | null }) => {
   return (
     <div className="min-h-40">
       <h1 className="text-3xl">Compete your thought efficiency with AI.</h1>
