@@ -3,7 +3,12 @@ export interface Data {
     type: "text"
     data: {
       version: string
-      input: { prompt: string; system_prompt?: string; seed?: number }
+      input: {
+        prompt: string
+        system_prompt?: string
+        max_tokens?: number
+        min_tokens?: number
+      }
     }
   }
   embedding: {
@@ -29,6 +34,32 @@ export const wordsPrompt = (banList: string[]): Data["text"] => {
   }
 }
 
+export const sentencePrompt = (
+  words: string[],
+  number: number
+): Data["text"] => {
+  const prompt = `Strictly use only ${number} words to connect the word ${
+    words[0]
+  } and ${words[1]}. ${
+    words[0]
+  } should be the first word of the phrase or sentence and ${
+    words[1]
+  } should be the last word of the sentence. Make sure your response contains exactly ${
+    number + 2
+  } words. Add a + sign at the beginning and end of your response.`
+  const system_prompt = `You are a helpful AI assistant. Your response should contain exactly ${
+    number + 2
+  } words.`
+  return {
+    type: "text",
+    data: {
+      version:
+        "fbfb20b472b2f3bdd101412a9f70a0ed4fc0ced78a77ff00970ee7a2383c575d",
+      input: { prompt, system_prompt },
+    },
+  }
+}
+
 export const embeddingPrompt = (input: string): Data["embedding"] => {
   return {
     type: "embedding",
@@ -36,135 +67,6 @@ export const embeddingPrompt = (input: string): Data["embedding"] => {
       version:
         "71addf5a5e7c400e091f33ef8ae1c40d72a25966897d05ebe36a7edb06a86a2c",
       input: { inputs: input },
-    },
-  }
-}
-
-export const storyPrompt = (
-  input: string,
-  params: { language: string }
-): Data["text"] => {
-  const promptOptions = [
-    "twisting",
-    "surprising",
-    "peaceful",
-    "exciting",
-    "humorous",
-    "romantic",
-    "sarcasm",
-    "suspenful",
-    "mysterious",
-    "tedious",
-  ]
-  const randomOption =
-    promptOptions[Random.integer(0, promptOptions.length - 1)]
-  const prompt = `Read the following story and expand upon it in one or two sentences. Your response should be no longer than 20 words. Make sure the logic of the story is smooth. The plot should be ${randomOption}. Add a + sign at the beginning and end of your response: ${input}`
-  return {
-    type: "text",
-    data: {
-      version:
-        "fbfb20b472b2f3bdd101412a9f70a0ed4fc0ced78a77ff00970ee7a2383c575d",
-      input: {
-        prompt: prompt,
-        system_prompt: `You are a professional novel writter. You speak ${params.language}.`,
-      },
-    },
-  }
-}
-
-export const choicePrompt = (
-  input: string,
-  params: { language: string }
-): Data["text"] => {
-  const prompt = `Summerize the follow sentences into a short sentence less then 8 words. You should not alter the subject or the meaning of the sentence. Add a + sign at the beginning and end of your response: ${input}`
-  return {
-    type: "text",
-    data: {
-      version:
-        "fbfb20b472b2f3bdd101412a9f70a0ed4fc0ced78a77ff00970ee7a2383c575d",
-      input: {
-        prompt: prompt,
-        system_prompt: `You are a professional novel writter. You speak ${params.language}.`,
-      },
-    },
-  }
-}
-
-export const initialPrompt = (params: { language: string }): Data["text"] => {
-  const numbers = ["one", "two", "three", "a gourp of"]
-  const characters = ["animal", "grown adult", "kid", "location"]
-  const conditions = [
-    "doing something",
-    "and the surrounding environment",
-    "and the weather",
-  ]
-  const settings = [
-    "metropolis",
-    "countryside",
-    "medieval",
-    "in the nature",
-    "magical",
-    "sci-fi",
-    "warfare",
-  ]
-  const tones = [
-    "everyday life",
-    "suspenful",
-    "exciting",
-    "peaceful",
-    "romantic",
-  ]
-  const perspectives = ["first-person", "third-person"]
-  const [number, character, condition, setting, tone, perspective] = [
-    numbers,
-    characters,
-    conditions,
-    settings,
-    tones,
-    perspectives,
-  ].map((arr) => arr[Random.integer(0, arr.length - 1)])
-  const prompt = `Write one sentence in ${perspective} point of view to describe ${number} ${character} ${condition}. The setting should ${setting} and the tone should be ${tone}. The sentence should be no longer than 15 words. Add a + sign at the beginning and end of your response.`
-  return {
-    type: "text",
-    data: {
-      version:
-        "fbfb20b472b2f3bdd101412a9f70a0ed4fc0ced78a77ff00970ee7a2383c575d",
-      input: {
-        prompt: prompt,
-        system_prompt: `You are a professional novel writter. You speak ${params.language}.`,
-      },
-    },
-  }
-}
-
-export const imagePrompt = (input: string): Data["image"] => {
-  const prompt = `${input} hd, hand-drawn, Studio Ghibli`
-  return {
-    type: "image",
-    data: {
-      version:
-        "5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637",
-      input: {
-        prompt: prompt,
-        negative_prompt: "Worst quality, low quality, black and white",
-        // width: 1024,
-        // height: 1024,
-        // num_outputs: 1,
-      },
-    },
-  }
-}
-
-export const translatePrompt = (input: string): Data["text"] => {
-  const prompt = `Repeat the following sentences in English. Add a + sign at the beginning and end of your response: ${input}`
-  return {
-    type: "text",
-    data: {
-      version:
-        "fbfb20b472b2f3bdd101412a9f70a0ed4fc0ced78a77ff00970ee7a2383c575d",
-      input: {
-        prompt: prompt,
-      },
     },
   }
 }

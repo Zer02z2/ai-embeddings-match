@@ -1,25 +1,42 @@
-import { wordsPrompt, Data, embeddingPrompt } from "./prompts"
+import { wordsPrompt, Data, embeddingPrompt, sentencePrompt } from "./prompts"
 
 const url = "https://replicate-api-proxy.glitch.me/create_n_get/"
 
-export const fetchWords = async (banList: string[]): Promise<string[]> => {
+export const fetchWords = async (banList: string[]) => {
   try {
     const result = await fetchData(wordsPrompt(banList))
+    if (typeof result !== "string") throw new Error()
     const wordArr = result.split(/[^a-zA-Z]+/)
     if (wordArr.length !== 2) {
-      return fetchWords(banList)
+      throw new Error()
     }
     return wordArr
   } catch {
-    return fetchWords(banList)
+    alert("fetch words failed")
+  }
+}
+
+export const fetchSentence = async (words: string[], numberOfWords: number) => {
+  try {
+    const result = await fetchData(sentencePrompt(words, numberOfWords))
+    if (typeof result !== "string") throw new Error()
+    return result
+  } catch {
+    alert("fetch words failed")
   }
 }
 
 export const fetchEmbedding = async (input: string) => {
-  const result = await fetchData(embeddingPrompt(input))
+  try {
+    const result = await fetchData(embeddingPrompt(input))
+    if (typeof result !== "number") throw new Error()
+    return result
+  } catch {
+    alert("fetch embedding failed")
+  }
 }
 
-export const fetchData = async (data: Data[keyof Data]): Promise<string> => {
+export const fetchData = async (data: Data[keyof Data]) => {
   const options = {
     method: "POST",
     headers: {
@@ -33,19 +50,37 @@ export const fetchData = async (data: Data[keyof Data]): Promise<string> => {
     const response = await fetch(url, options)
     const parsedResponse = await response.json()
     if (data["type"] === "text") {
-      const result: string = parsedResponse.output
-        .join("")
-        .match(/\+([^+]+)\+/)[1]
-        .trim()
-      return result
+      return parseText(parsedResponse)
     }
     if (data["type"] === "embedding") {
-      console.log(parsedResponse)
-      return "done"
+      return parseEmbedding(parsedResponse)
     }
-    return fetchData(data)
+    throw new Error()
   } catch {
-    console.log("Trying again...")
-    return fetchData(data)
+    console.log("failed")
   }
+}
+
+const parseText = (parsedResponse: any) => {
+  const result: string = parsedResponse.output
+    .join("")
+    .match(/\+([^+]+)\+/)[1]
+    .trim()
+  return result
+}
+
+const parseEmbedding = (parsedResponse: any) => {
+  const output: { embedding: number[]; input: string }[] = parsedResponse.output
+  const embeddings = output.map((point) => point.embedding)
+  const distMap = embeddings.map((numbers) => {
+    return Math.sqrt(
+      numbers.reduce(
+        (accumulator, currentValue) => accumulator + currentValue * currentValue
+      )
+    )
+  })
+  const distSum = distMap.reduce(
+    (accumulator, currentValue) => accumulator + currentValue
+  )
+  return distSum
 }

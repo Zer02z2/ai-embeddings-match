@@ -1,13 +1,35 @@
 import { useState } from "react"
 import { fetchEmbedding } from "../fetch/fetch"
+import { LoadingBar } from "./loadingBar/loadingBar"
 
-export const UserArea = ({ words }: { words: string[] }) => {
-  const [value, setValue] = useState<string>("")
+export interface Props {
+  words: string[]
+  initialDist: number
+  value: string
+  setValue: React.Dispatch<React.SetStateAction<string>>
+  isFetching: boolean
+  setIsFetching: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export const UserArea = ({ props }: { props: Props }) => {
+  const { words, initialDist, value, setValue, isFetching, setIsFetching } =
+    props
+  const [display, setDisplay] = useState<string>()
+  const [score, setScore] = useState<number>()
 
   const getEmbeddingScore = async () => {
-    const input = value.split(/[^a-zA-Z]+/).join("\n")
+    setIsFetching(true)
+    const fullSentence = `${words[0]} ${value} ${words[1]}`
+    const input = fullSentence.split(/[^a-zA-Z]+/).join("\n")
     console.log(input)
-    const result = await fetchEmbedding(input)
+    try {
+      const result = await fetchEmbedding(input)
+      if (!result) throw new Error()
+      const distScore = result / initialDist
+      console.log(`init: ${initialDist}, final: ${result}, score: ${distScore}`)
+      setScore(distScore)
+      setIsFetching(false)
+    } catch {}
   }
   return (
     <div>
@@ -25,10 +47,24 @@ export const UserArea = ({ words }: { words: string[] }) => {
             if (e.key !== "Enter") return
             if (value.length <= 0) return
             getEmbeddingScore()
-            setValue("")
+            setDisplay(value)
           }}
         ></input>
         <p className="inline-block">{`${words[1]}.`}</p>
+      </div>
+
+      {display && <p>{`${words[0]} ${display} ${words[1]}.`}</p>}
+      <div className="relative">
+        {isFetching ? (
+          <LoadingBar />
+        ) : (
+          score && (
+            <>
+              <h2>Embedding score:</h2>
+              <p>{score}</p>
+            </>
+          )
+        )}
       </div>
     </div>
   )
